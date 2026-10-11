@@ -28,6 +28,10 @@ A lightweight, cloud-based web application that automates the calculation and pu
 ## 👨‍💻 Team Members
 * Sanjay V R
 * Trisha Pradhan
+* Varshini S
+* Gangothri J R
+* Pavin kumar R
+* Mallikarjun chekuri
   
 
 *Developed for the Data Structures Course (E1CSA25479) at Alliance University.*
