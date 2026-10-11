@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Examination Result Portal</title>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-hover: #1d4ed8;
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --pass-bg: #dcfce7;
+      --pass-text: #166534;
+      --fail-bg: #fee2e2;
+      --fail-text: #991b1b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 24px 16px;
+      line-height: 1.5;
+    }
+
+    .container { max-width: 780px; margin: 0 auto; }
+
+    .portal-header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+      color: #ffffff;
+      padding: 28px 24px;
+      border-radius: 14px;
+      text-align: center;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15);
+    }
+
+    .portal-header h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
+    .portal-header p { color: #cbd5e1; font-size: 0.92rem; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+    }
+
+    .search-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 16px;
+      align-items: end;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 11px 14px;
+      font-size: 0.95rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    .form-group input:focus {
+      border-color: var(--primary-hover);
+      box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15);
+    }
+
+    .btn {
+      background: var(--primary);
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 12px 22px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn:hover { background: var(--primary-hover); }
+    .btn:disabled { opacity: 0.65; cursor: not-allowed; }
+
+    .demo-bar {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border);
+      font-size: 0.82rem;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .chip {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      padding: 3px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--primary);
+    }
+
+    .chip:hover { background: #e0e7ff; border-color: var(--primary-hover); }
+
+    .error-alert {
+      display: none;
+      background: var(--fail-bg);
+      color: var(--fail-text);
+      border: 1px solid #fecaca;
+      padding: 14px 16px;
+      border-radius: 10px;
+      font-size: 0.92rem;
+      margin-bottom: 24px;
+      font-weight: 500;
+    }
+
+    #marksheetCard { display: none; }
+
+    .marksheet-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .inst-title { font-size: 1.25rem; font-weight: 700; color: var(--primary); }
+    .session-sub { font-size: 0.85rem; color: var(--muted); }
+
+    .status-pill {
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .status-pass { background: var(--pass-bg); color: var(--pass-text); }
+    .status-fail { background: var(--fail-bg); color: var(--fail-text); }
+
+    .student-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+
+    .info-item span {
+      display: block;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .info-item strong { font-size: 0.98rem; color: var(--text); }
+
+    .table-wrap { overflow-x: auto; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+    th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: #f1f5f9; font-weight: 600; color: #334155; font-size: 0.8rem; text-transform: uppercase; }
+    td.num, th.num { text-align: center; }
+
+    .sub-pass { color: var(--pass-text); font-weight: 700; }
+    .sub-fail { color: var(--fail-text); font-weight: 700; }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .summary-box {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      padding: 14px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .summary-box span {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .summary-box strong { font-size: 1.2rem; color: var(--primary); }
+
+    .marksheet-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-outline { background: transparent; color: var(--text); border: 1px solid #cbd5e1; }
+    .btn-outline:hover { background: #f1f5f9; }
+
+    @media (max-width: 640px) {
+      .search-grid, .summary-grid { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      body { background: #ffffff; padding: 0; }
+      .no-print { display: none !important; }
+      .card { box-shadow: none; border: 1px solid #000; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="portal-header no-print">
+      <h1>Student Examination Result Portal</h1>
+      <p>Enter your Roll Number and Date of Birth to view your official marksheet</p>
+    </div>
+
+    <div class="card no-print">
+      <form id="resultForm" onsubmit="handleSearch(event)">
+        <div class="search-grid">
+          <div class="form-group">
+            <label for="rollNo">Roll Number</label>
+            <input type="text" id="rollNo" placeholder="e.g. 101" required>
+          </div>
+          <div class="form-group">
+            <label for="dob">Date of Birth</label>
+            <input type="date" id="dob" required>
+          </div>
+          <button type="submit" id="searchBtn" class="btn">View Result</button>
+        </div>
+      </form>
+
+      <div class="demo-bar">
+        <span>Quick Test Records:</span>
+        <span class="chip" onclick="fillDemo('101', '2005-06-15')">#101 Aarav (Distinction)</span>
+        <span class="chip" onclick="fillDemo('103', '2005-11-03')">#103 Rohan (Pass)</span>
+        <span class="chip" onclick="fillDemo('105', '2005-09-30')">#105 Vikram (Fail)</span>
+      </div>
+    </div>
+
+    <div id="errorBox" class="error-alert no-print"></div>
+
+    <div id="marksheetCard" class="card">
+      <div class="marksheet-top">
+        <div>
+          <div id="instName" class="inst-title">Academic Institution</div>
+          <div id="examSession" class="session-sub">Examination Session</div>
+        </div>
+        <div id="statusBadge" class="status-pill">PASSED</div>
+      </div>
+
+      <div class="student-info-grid">
+        <div class="info-item">
+          <span>Candidate Name</span>
+          <strong id="resName">-</strong>
+        </div>
+        <div class="info-item">
+          <span>Roll Number</span>
+          <strong id="resRoll">-</strong>
+        </div>
+        <div class="info-item">
+          <span>Date of Birth</span>
+          <strong id="resDob">-</strong>
+        </div>
+        <div class="info-item">
+          <span>Declaration Date</span>
+          <strong id="resDeclared">-</strong>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Subject</th>
+              <th class="num">Max Marks</th>
+              <th class="num">Pass Marks</th>
+              <th class="num">Marks Obtained</th>
+              <th class="num">Grade</th>
+              <th class="num">Status</th>
+            </tr>
+          </thead>
+          <tbody id="subjectRows"></tbody>
+        </table>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-box">
+          <span>Aggregate Marks</span>
+          <strong id="resTotal">0 / 300</strong>
+        </div>
+        <div class="summary-box">
+          <span>Percentage</span>
+          <strong id="resPct">0.00%</strong>
+        </div>
+        <div class="summary-box">
+          <span>Overall Grade</span>
+          <strong id="resGrade">-</strong>
+        </div>
+      </div>
+
+      <div class="marksheet-actions no-print">
+        <button type="button" class="btn btn-outline" onclick="window.print()">Print / Save PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function fillDemo(roll, dob) {
+      document.getElementById('rollNo').value = roll;
+      document.getElementById('dob').value = dob;
+      document.getElementById('resultForm').requestSubmit();
+    }
+
+    function handleSearch(e) {
+      e.preventDefault();
+      const rollNo = document.getElementById('rollNo').value.trim();
+      const dob = document.getElementById('dob').value.trim();
+      const btn = document.getElementById('searchBtn');
+      const errorBox = document.getElementById('errorBox');
+      const marksheet = document.getElementById('marksheetCard');
+
+      errorBox.style.display = 'none';
+      marksheet.style.display = 'none';
+      btn.disabled = true;
+      btn.textContent = 'Searching...';
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          btn.disabled = false;
+          btn.textContent = 'View Result';
+
+          if (!response || !response.success) {
+            errorBox.textContent = (response && response.message) ? response.message : 'Unable to fetch record.';
+            errorBox.style.display = 'block';
+            return;
+          }
+
+          renderMarksheet(response.data);
+        })
+        .withFailureHandler(function(err) {
+          btn.disabled = false;
+          btn.textContent = 'View Result';
+          errorBox.textContent = 'Server error: ' + err.message;
+          errorBox.style.display = 'block';
+        })
+        .searchStudent(rollNo, dob);
+    }
+
+    function renderMarksheet(d) {
+      document.getElementById('instName').textContent = d.institutionName || 'Academic Institution';
+      document.getElementById('examSession').textContent = d.examSession || '';
+      document.getElementById('resName').textContent = d.name;
+      document.getElementById('resRoll').textContent = d.rollNo;
+      document.getElementById('resDob').textContent = d.dob;
+      document.getElementById('resDeclared').textContent = d.declarationDate;
+
+      const badge = document.getElementById('statusBadge');
+      badge.textContent = d.status;
+      badge.className = 'status-pill ' + (d.isPassed ? 'status-pass' : 'status-fail');
+
+      const tbody = document.getElementById('subjectRows');
+      tbody.innerHTML = '';
+
+      d.subjects.forEach(function(sub) {
+        const tr = document.createElement('tr');
+        const statusClass = sub.status === 'PASS' ? 'sub-pass' : 'sub-fail';
+        tr.innerHTML =
+          '<td>' + sub.code + '</td>' +
+          '<td><strong>' + sub.name + '</strong></td>' +
+          '<td class="num">' + sub.maxMarks + '</td>' +
+          '<td class="num">' + sub.passMarks + '</td>' +
+          '<td class="num"><strong>' + sub.marksObtained + '</strong></td>' +
+          '<td class="num">' + sub.grade + '</td>' +
+          '<td class="num ' + statusClass + '">' + sub.status + '</td>';
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('resTotal').textContent = d.totalMarks + ' / ' + d.maxTotalMarks;
+      document.getElementById('resPct').textContent = d.percentage + '%';
+      document.getElementById('resGrade').textContent = d.grade;
+
+      document.getElementById('marksheetCard').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
